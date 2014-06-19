@@ -89,6 +89,8 @@ namespace Woorkie.Core.Nhibernate
                                                         .Select(TranslateType)
                                                         .ToArray());
             }
+            if (method.Name == "Equals")
+                return Expression.Equal(obj, arguments.Single());
 
             return Expression.Call(obj, method, arguments);
         }

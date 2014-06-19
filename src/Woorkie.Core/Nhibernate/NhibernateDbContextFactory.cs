@@ -17,11 +17,10 @@ namespace Woorkie.Core.Nhibernate
 
             _sessionFactory = Fluently.Configure()
                                       .Database(MsSqlCeConfiguration.MsSqlCe40
-                                                                    .ConnectionString(connectionStringProvider.ConnectionString)
-                                                                    .ShowSql())
+                                                                    .ConnectionString(connectionStringProvider.ConnectionString))
                                       .Mappings(m => m.FluentMappings
                                                       .AddFromAssemblyOf<DbContextFactory>())
-                                      .ExposeConfiguration(cfg => new SchemaUpdate(cfg).Execute(true, true))
+                                      .ExposeConfiguration(cfg => new SchemaUpdate(cfg).Execute(false, true))
                                       .BuildSessionFactory();
         }
 
