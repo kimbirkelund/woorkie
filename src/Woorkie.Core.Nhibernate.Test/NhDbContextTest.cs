@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Linq;
-using Woorkie.Core.Nhibernate;
 using Xunit;
 
-namespace Woorkie.Core.Test.Nhibernate
+namespace Woorkie.Core.Nhibernate.Test
 {
-    public class NhibernateDbContextTest : NhibernateDbContextTestBase
+    public class NhDbContextTest : NhDbContextTestBase
     {
         [Fact]
         public void TestAddWork()
@@ -31,7 +29,7 @@ namespace Woorkie.Core.Test.Nhibernate
         [Fact]
         public void TestConstructor_InvalidArgument()
         {
-            Assert.Throws<ArgumentNullException>(() => new NhibernateDbContext(null));
+            Assert.Throws<ArgumentNullException>(() => new NhDbContext(null));
         }
 
         [Fact]
@@ -76,7 +74,7 @@ namespace Woorkie.Core.Test.Nhibernate
                              .Where(e => e.Duration > TimeSpan.FromHours(7))
                              .Where(e => start.AddHours(20) <= e.Start && e.Start <= start.AddHours(40))
                              .Where(e => e.Label == "work")
-                             .ToImmutableList();
+                             .ToList();
 
                 Assert.Equal(1, wes.Count);
 
@@ -125,7 +123,7 @@ namespace Woorkie.Core.Test.Nhibernate
 
                 const string newLabel = "holiday";
                 var newStart = DateTime.Today;
-                var newDuration = TimeSpan.FromHours(7.5 / 2);
+                var newDuration = TimeSpan.FromHours(7.5/2);
 
                 work = work.WithLabel(newLabel)
                            .WithStart(newStart)

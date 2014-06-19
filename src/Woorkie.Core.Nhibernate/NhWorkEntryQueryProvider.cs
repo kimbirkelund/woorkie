@@ -39,19 +39,20 @@ namespace Woorkie.Core.Nhibernate
         {
             var rewrittenExpression = new ModelToNhExpressionRewriter(_session).Visit(expression);
 
-            var result = _session.Query<NhWorkEntry>().Provider.Execute(rewrittenExpression);
+            var result = _session.Query<WorkEntryEntity>().Provider.Execute(rewrittenExpression);
 
             return (TResult)TranslateResult(typeof(TResult), result);
         }
 
         private object TranslateResult(Type resultType, object result)
         {
-            var nhProfile = result as NhProfile;
+            var nhProfile = result as ProfileEntity;
             if (nhProfile != null)
-                return nhProfile.ToModelEntity(_session);
-            var nhWorkEntry = result as NhWorkEntry;
+                return nhProfile.ToModelProfile(_session);
+
+            var nhWorkEntry = result as WorkEntryEntity;
             if (nhWorkEntry != null)
-                return nhWorkEntry.ToModelEntity(_session);
+                return nhWorkEntry.ToModelWOrkEntry(_session);
 
             if (resultType == typeof(string))
                 return result;

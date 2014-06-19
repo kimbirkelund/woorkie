@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace Woorkie.Core.Nhibernate
+namespace Woorkie.Core
 {
     public interface IDbContext : IDisposable
     {

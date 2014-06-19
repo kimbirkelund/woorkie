@@ -12,7 +12,7 @@ namespace Woorkie.Core.Nhibernate
         public Expression Expression { get; private set; }
         public IQueryProvider Provider { get; private set; }
 
-        public NhWorkEntryQueryable(IQueryProvider provider, Expression expression)
+        public NhWorkEntryQueryable(IQueryProvider provider, Expression expression = null)
         {
             if (provider == null)
                 throw new ArgumentNullException("provider");

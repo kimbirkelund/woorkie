@@ -2,9 +2,9 @@ using FluentNHibernate.Mapping;
 
 namespace Woorkie.Core.Nhibernate
 {
-    public class NhWorkEntryMap : ClassMap<NhWorkEntry>
+    public class WorkEntryEntityMap : ClassMap<WorkEntryEntity>
     {
-        public NhWorkEntryMap()
+        public WorkEntryEntityMap()
         {
             Table("WorkEntry");
             Id(e => e.Id);

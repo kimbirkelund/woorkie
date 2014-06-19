@@ -2,9 +2,9 @@ using FluentNHibernate.Mapping;
 
 namespace Woorkie.Core.Nhibernate
 {
-    public class NhProfileMap : ClassMap<NhProfile>
+    public class ProfileEntityMap : ClassMap<ProfileEntity>
     {
-        public NhProfileMap()
+        public ProfileEntityMap()
         {
             Table("Profile");
             Id(e => e.Name);

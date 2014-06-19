@@ -5,12 +5,12 @@ using NHibernate.Linq;
 
 namespace Woorkie.Core.Nhibernate
 {
-    public class ModelProfile : ProfileBase, IEquatable<ModelProfile>
+    public class NhWorkEntry : WorkEntryBase, IEquatable<NhWorkEntry>
     {
         private readonly ISession _session;
 
-        public ModelProfile(ISession session, string name, TimeSpan? defaultHoursPerWeek)
-            : base(name, defaultHoursPerWeek)
+        public NhWorkEntry(ISession session, Guid id, IProfile profile, string label, DateTime start, TimeSpan duration)
+            : base(id, profile, label, start, duration)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
@@ -18,13 +18,15 @@ namespace Woorkie.Core.Nhibernate
             _session = session;
         }
 
-        public bool Equals(ModelProfile other)
+        public bool Equals(NhWorkEntry other)
         {
             if (ReferenceEquals(null, other))
                 return false;
             if (ReferenceEquals(this, other))
                 return true;
-            return base.Equals(other) && Equals(_session, other._session);
+
+            return base.Equals(other)
+                   && Equals(_session, other._session);
         }
 
         public override bool Equals(object obj)
@@ -35,7 +37,8 @@ namespace Woorkie.Core.Nhibernate
                 return true;
             if (obj.GetType() != GetType())
                 return false;
-            return Equals((ModelProfile)obj);
+
+            return Equals((NhWorkEntry)obj);
         }
 
         public override int GetHashCode()
@@ -46,16 +49,18 @@ namespace Woorkie.Core.Nhibernate
             }
         }
 
-        public override IProfile Save()
+        public override IWorkEntry Save()
         {
             using (var tx = _session.BeginTransaction())
             {
-                var nhProfile = _session.Query<NhProfile>()
-                                        .Single(p => p.Name == Name);
+                var nhWorkEntry = _session.Query<WorkEntryEntity>()
+                                          .Single(p => p.Id == Id);
 
-                nhProfile.DefaultHoursPerWeek = DefaultHoursPerWeek;
+                nhWorkEntry.Label = Label;
+                nhWorkEntry.Start = Start;
+                nhWorkEntry.Duration = Duration;
 
-                _session.Save(nhProfile);
+                _session.Save(nhWorkEntry);
 
                 tx.Commit();
             }
@@ -63,9 +68,9 @@ namespace Woorkie.Core.Nhibernate
             return this;
         }
 
-        protected override IProfile CreateInstance(string name, TimeSpan? defaultHoursPerWeek)
+        protected override IWorkEntry CreateInstance(Guid id, IProfile profile, string label, DateTime start, TimeSpan duration)
         {
-            return new ModelProfile(_session, name, defaultHoursPerWeek);
+            return new NhWorkEntry(_session, id, profile, label, start, duration);
         }
     }
 }

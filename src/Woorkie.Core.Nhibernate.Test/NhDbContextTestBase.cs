@@ -1,23 +1,25 @@
 using System.Data.SqlServerCe;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Woorkie.Core.Nhibernate;
 
-namespace Woorkie.Core.Test.Nhibernate
+namespace Woorkie.Core.Nhibernate.Test
 {
-    public class NhibernateDbContextTestBase
+    public class NhDbContextTestBase
     {
-        protected NhibernateDbContext CreateContext(bool recreateDb = true, [CallerMemberName] string callerMemberName = null)
+        protected NhDbContext CreateContext(bool recreateDb = true, [CallerMemberName] string callerMemberName = null)
         {
             var dbFilePath = GetDbFilePath(callerMemberName);
             if (File.Exists(dbFilePath))
                 File.Delete(dbFilePath);
 
-            var connectionStringProvider = MssqlCeConnectionStringProvider.ForFile(dbFilePath);
+            var connectionStringProvider = new SqlCeConnectionStringBuilder
+            {
+                DataSource = dbFilePath
+            };
 
             new SqlCeEngine(connectionStringProvider.ConnectionString).CreateDatabase();
 
-            return new DbContextFactory(connectionStringProvider).Create();
+            return new NhDbContextFactory(connectionStringProvider).Create();
         }
 
         protected string GetDbFilePath(string testMethod)

@@ -1,6 +1,4 @@
-﻿using Woorkie.Core.Nhibernate;
-
-namespace Woorkie.Core
+﻿namespace Woorkie.Core
 {
     public interface IDbContextFactory
     {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlServerCe;
 using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using NHibernate;
@@ -6,27 +7,27 @@ using NHibernate.Tool.hbm2ddl;
 
 namespace Woorkie.Core.Nhibernate
 {
-    public class DbContextFactory : IDbContextFactory
+    public class NhDbContextFactory : IDbContextFactory
     {
         private readonly ISessionFactory _sessionFactory;
 
-        public DbContextFactory(IConnectionStringProvider connectionStringProvider)
+        public NhDbContextFactory(SqlCeConnectionStringBuilder connectionStringBuilder)
         {
-            if (connectionStringProvider == null)
-                throw new ArgumentNullException("connectionStringProvider");
+            if (connectionStringBuilder == null)
+                throw new ArgumentNullException("connectionStringBuilder");
 
             _sessionFactory = Fluently.Configure()
                                       .Database(MsSqlCeConfiguration.MsSqlCe40
-                                                                    .ConnectionString(connectionStringProvider.ConnectionString))
+                                                                    .ConnectionString(connectionStringBuilder.ConnectionString))
                                       .Mappings(m => m.FluentMappings
-                                                      .AddFromAssemblyOf<DbContextFactory>())
+                                                      .AddFromAssemblyOf<NhDbContextFactory>())
                                       .ExposeConfiguration(cfg => new SchemaUpdate(cfg).Execute(false, true))
                                       .BuildSessionFactory();
         }
 
-        public NhibernateDbContext Create()
+        public NhDbContext Create()
         {
-            return new NhibernateDbContext(_sessionFactory.OpenSession());
+            return new NhDbContext(_sessionFactory.OpenSession());
         }
 
         IDbContext IDbContextFactory.Create()

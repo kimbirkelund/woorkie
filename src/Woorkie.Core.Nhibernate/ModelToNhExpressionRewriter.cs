@@ -28,7 +28,7 @@ namespace Woorkie.Core.Nhibernate
             if (workEntry != null)
                 return Expression.Constant(GetNhWorkEntry(workEntry));
             if (node.Value is NhWorkEntryQueryable)
-                return Expression.Constant(_session.Query<NhWorkEntry>());
+                return Expression.Constant(_session.Query<WorkEntryEntity>());
 
             return base.VisitConstant(node);
         }
@@ -46,7 +46,7 @@ namespace Woorkie.Core.Nhibernate
             var operand = Visit(node.Expression);
 
             MemberInfo member;
-            if (operand.Type == typeof(NhWorkEntry) || operand.Type == typeof(NhProfile))
+            if (operand.Type == typeof(WorkEntryEntity) || operand.Type == typeof(ProfileEntity))
                 member = operand.Type.GetMember(node.Member.Name).Single();
             else
                 member = node.Member;
@@ -98,27 +98,27 @@ namespace Woorkie.Core.Nhibernate
         protected override Expression VisitParameter(ParameterExpression node)
         {
             if (node.Type == typeof(IWorkEntry))
-                return Expression.Parameter(typeof(NhWorkEntry), node.Name);
+                return Expression.Parameter(typeof(WorkEntryEntity), node.Name);
             if (node.Type == typeof(IProfile))
-                return Expression.Parameter(typeof(NhProfile), node.Name);
+                return Expression.Parameter(typeof(ProfileEntity), node.Name);
 
             return node;
         }
 
-        private NhProfile GetNhProfile(IProfile profile)
+        private ProfileEntity GetNhProfile(IProfile profile)
         {
             using (_session.BeginTransaction())
             {
-                return _session.Query<NhProfile>()
+                return _session.Query<ProfileEntity>()
                                .Single(p => p.Name == profile.Name);
             }
         }
 
-        private NhWorkEntry GetNhWorkEntry(IWorkEntry workEntry)
+        private WorkEntryEntity GetNhWorkEntry(IWorkEntry workEntry)
         {
             using (_session.BeginTransaction())
             {
-                return _session.Query<NhWorkEntry>()
+                return _session.Query<WorkEntryEntity>()
                                .Single(p => p.Id == workEntry.Id);
             }
         }
@@ -126,9 +126,9 @@ namespace Woorkie.Core.Nhibernate
         private Type TranslateType(Type type)
         {
             if (type == typeof(IProfile))
-                return typeof(NhProfile);
+                return typeof(ProfileEntity);
             if (type == typeof(IWorkEntry))
-                return typeof(NhWorkEntry);
+                return typeof(WorkEntryEntity);
 
             if (type.IsGenericType)
             {

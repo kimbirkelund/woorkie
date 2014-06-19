@@ -5,11 +5,11 @@ using NHibernate.Linq;
 
 namespace Woorkie.Core.Nhibernate
 {
-    public class NhibernateDbContext : IDbContext
+    public class NhDbContext : IDbContext
     {
         private readonly ISession _session;
 
-        public NhibernateDbContext(ISession session)
+        public NhDbContext(ISession session)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
@@ -19,13 +19,13 @@ namespace Woorkie.Core.Nhibernate
 
         public IWorkEntry AddWork(IProfile profile, string label, DateTime start, TimeSpan duration)
         {
-            NhWorkEntry workEntry;
+            WorkEntryEntity workEntry;
             using (var tx = _session.BeginTransaction())
             {
-                workEntry = new NhWorkEntry
+                workEntry = new WorkEntryEntity
                 {
                     Id = Guid.NewGuid(),
-                    Profile = _session.Query<NhProfile>()
+                    Profile = _session.Query<ProfileEntity>()
                                       .Single(p => p.Name == profile.Name),
                     Label = label,
                     Start = start,
@@ -37,15 +37,15 @@ namespace Woorkie.Core.Nhibernate
                 tx.Commit();
             }
 
-            return workEntry.ToModelEntity(_session);
+            return workEntry.ToModelWOrkEntry(_session);
         }
 
         public IProfile CreateProfile(string name)
         {
-            NhProfile profile;
+            ProfileEntity profile;
             using (var tx = _session.BeginTransaction())
             {
-                profile = new NhProfile
+                profile = new ProfileEntity
                 {
                     Name = name
                 };
@@ -55,7 +55,7 @@ namespace Woorkie.Core.Nhibernate
                 tx.Commit();
             }
 
-            return profile.ToModelEntity(_session);
+            return profile.ToModelProfile(_session);
         }
 
         public void Dispose()
@@ -67,13 +67,13 @@ namespace Woorkie.Core.Nhibernate
         {
             using (_session.BeginTransaction())
             {
-                var nhProfile = _session.Query<NhProfile>()
+                var nhProfile = _session.Query<ProfileEntity>()
                                         .SingleOrDefault(p => p.Name == name);
 
                 if (nhProfile == null)
                     return null;
 
-                return nhProfile.ToModelEntity(_session);
+                return nhProfile.ToModelProfile(_session);
             }
         }
 
