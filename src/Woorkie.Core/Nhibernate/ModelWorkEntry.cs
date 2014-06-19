@@ -5,55 +5,17 @@ using NHibernate.Linq;
 
 namespace Woorkie.Core.Nhibernate
 {
-    public class ModelWorkEntry : IWorkEntry, IEquatable<ModelWorkEntry>
+    public class ModelWorkEntry : WorkEntryBase, IEquatable<ModelWorkEntry>
     {
-        private readonly TimeSpan _duration;
-        private readonly Guid _id;
-        private readonly string _label;
-        private readonly IProfile _profile;
         private readonly ISession _session;
-        private readonly DateTime _start;
-
-        public TimeSpan Duration
-        {
-            get { return _duration; }
-        }
-
-        public Guid Id
-        {
-            get { return _id; }
-        }
-
-        public string Label
-        {
-            get { return _label; }
-        }
-
-        public IProfile Profile
-        {
-            get { return _profile; }
-        }
-
-        public DateTime Start
-        {
-            get { return _start; }
-        }
 
         public ModelWorkEntry(ISession session, Guid id, IProfile profile, string label, DateTime start, TimeSpan duration)
+            : base(id, profile, label, start, duration)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
-            if (profile == null)
-                throw new ArgumentNullException("profile");
-            if (string.IsNullOrWhiteSpace(label))
-                throw new ArgumentNullException("label");
 
             _session = session;
-            _id = id;
-            _profile = profile;
-            _label = label;
-            _start = start;
-            _duration = duration;
         }
 
         public bool Equals(ModelWorkEntry other)
@@ -63,17 +25,8 @@ namespace Woorkie.Core.Nhibernate
             if (ReferenceEquals(this, other))
                 return true;
 
-            return Equals(_session, other._session)
-                   && Equals(_profile, other._profile)
-                   && _id.Equals(other._id)
-                   && string.Equals(_label, other._label)
-                   && _start.Equals(other._start)
-                   && _duration.Equals(other._duration);
-        }
-
-        public bool Equals(IWorkEntry other)
-        {
-            return Equals(other as ModelWorkEntry);
+            return base.Equals(other)
+                   && Equals(_session, other._session);
         }
 
         public override bool Equals(object obj)
@@ -84,6 +37,7 @@ namespace Woorkie.Core.Nhibernate
                 return true;
             if (obj.GetType() != GetType())
                 return false;
+
             return Equals((ModelWorkEntry)obj);
         }
 
@@ -91,17 +45,11 @@ namespace Woorkie.Core.Nhibernate
         {
             unchecked
             {
-                var hashCode = (_session != null ? _session.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (_profile != null ? _profile.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ _id.GetHashCode();
-                hashCode = (hashCode * 397) ^ (_label != null ? _label.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ _start.GetHashCode();
-                hashCode = (hashCode * 397) ^ _duration.GetHashCode();
-                return hashCode;
+                return (base.GetHashCode() * 397) ^ (_session != null ? _session.GetHashCode() : 0);
             }
         }
 
-        public IWorkEntry Save()
+        public override IWorkEntry Save()
         {
             using (var tx = _session.BeginTransaction())
             {
@@ -120,28 +68,9 @@ namespace Woorkie.Core.Nhibernate
             return this;
         }
 
-        public IWorkEntry WithDuration(TimeSpan value)
+        protected override IWorkEntry CreateInstance(Guid id, IProfile profile, string label, DateTime start, TimeSpan duration)
         {
-            if (value == Duration)
-                return this;
-
-            return new ModelWorkEntry(_session, Id, Profile, Label, Start, value);
-        }
-
-        public IWorkEntry WithLabel(string value)
-        {
-            if (value == Label)
-                return this;
-
-            return new ModelWorkEntry(_session, Id, Profile, value, Start, Duration);
-        }
-
-        public IWorkEntry WithStart(DateTime value)
-        {
-            if (value == Start)
-                return this;
-
-            return new ModelWorkEntry(_session, Id, Profile, Label, value, Duration);
+            return new ModelWorkEntry(_session, id, profile, label, start, duration);
         }
     }
 }

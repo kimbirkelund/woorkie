@@ -5,32 +5,17 @@ using NHibernate.Linq;
 
 namespace Woorkie.Core.Nhibernate
 {
-    public class ModelProfile : IProfile, IEquatable<ModelProfile>
+    public class ModelProfile : ProfileBase, IEquatable<ModelProfile>
     {
-        private readonly TimeSpan? _defaultHoursPerWeek;
-        private readonly string _name;
         private readonly ISession _session;
 
-        public TimeSpan? DefaultHoursPerWeek
-        {
-            get { return _defaultHoursPerWeek; }
-        }
-
-        public string Name
-        {
-            get { return _name; }
-        }
-
         public ModelProfile(ISession session, string name, TimeSpan? defaultHoursPerWeek)
+            : base(name, defaultHoursPerWeek)
         {
             if (session == null)
                 throw new ArgumentNullException("session");
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ArgumentNullException("name");
 
             _session = session;
-            _name = name;
-            _defaultHoursPerWeek = defaultHoursPerWeek;
         }
 
         public bool Equals(ModelProfile other)
@@ -39,15 +24,7 @@ namespace Woorkie.Core.Nhibernate
                 return false;
             if (ReferenceEquals(this, other))
                 return true;
-
-            return Equals(_session, other._session)
-                   && string.Equals(_name, other._name)
-                   && _defaultHoursPerWeek.Equals(other._defaultHoursPerWeek);
-        }
-
-        public bool Equals(IProfile other)
-        {
-            return Equals(other as ModelProfile);
+            return base.Equals(other) && Equals(_session, other._session);
         }
 
         public override bool Equals(object obj)
@@ -65,14 +42,11 @@ namespace Woorkie.Core.Nhibernate
         {
             unchecked
             {
-                var hashCode = (_session != null ? _session.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (_name != null ? _name.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ _defaultHoursPerWeek.GetHashCode();
-                return hashCode;
+                return (base.GetHashCode() * 397) ^ (_session != null ? _session.GetHashCode() : 0);
             }
         }
 
-        public IProfile Save()
+        public override IProfile Save()
         {
             using (var tx = _session.BeginTransaction())
             {
@@ -89,12 +63,9 @@ namespace Woorkie.Core.Nhibernate
             return this;
         }
 
-        public IProfile WithDefaultHoursPerWeek(TimeSpan? value)
+        protected override IProfile CreateInstance(string name, TimeSpan? defaultHoursPerWeek)
         {
-            if (value == DefaultHoursPerWeek)
-                return this;
-
-            return new ModelProfile(_session, Name, value);
+            return new ModelProfile(_session, name, defaultHoursPerWeek);
         }
     }
 }
